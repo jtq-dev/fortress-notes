@@ -1,0 +1,31 @@
+image:
+  repository: fortress-notes
+  tag: latest
+  pullPolicy: IfNotPresent
+
+service:
+  port: 80
+  targetPort: 8080
+
+env:
+  ASPNETCORE_ENVIRONMENT: Production
+  ConnectionStrings__Default: "Data Source=/data/fortress.db"
+  Jwt__Issuer: "FortressNotes"
+  Jwt__Audience: "FortressNotesUsers"
+
+jwtSigningKeySecret:
+  name: fortress-jwt
+  key: signingKey
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 128Mi
+  limits:
+    cpu: 250m
+    memory: 256Mi
+
+ingress:
+  enabled: false
+  className: nginx
+  host: fortress.example.com

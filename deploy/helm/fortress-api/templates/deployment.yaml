@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fortress-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels: { app: fortress-api }
+  template:
+    metadata:
+      labels: { app: fortress-api }
+    spec:
+      containers:
+        - name: api
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ASPNETCORE_ENVIRONMENT
+              value: {{ .Values.env.ASPNETCORE_ENVIRONMENT | quote }}
+            - name: ConnectionStrings__Default
+              value: {{ .Values.env.ConnectionStrings__Default | quote }}
+            - name: Jwt__Issuer
+              value: {{ .Values.env.Jwt__Issuer | quote }}
+            - name: Jwt__Audience
+              value: {{ .Values.env.Jwt__Audience | quote }}
+            - name: Jwt__SigningKey
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.jwtSigningKeySecret.name }}
+                  key: {{ .Values.jwtSigningKeySecret.key }}
+          livenessProbe:
+            httpGet: { path: /health/live, port: 8080 }
+            initialDelaySeconds: 10
+            periodSeconds: 15
+          readinessProbe:
+            httpGet: { path: /health/ready, port: 8080 }
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources: {{- toYaml .Values.resources | nindent 12 }}
