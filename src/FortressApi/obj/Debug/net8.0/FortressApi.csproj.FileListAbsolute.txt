@@ -126,6 +126,7 @@ C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\FortressApi.csproj.CoreCompileInputs.cache
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\FortressApi.MvcApplicationPartsAssemblyInfo.cs
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\FortressApi.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\FortressApi.sourcelink.json
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\rjimswa.dswa.cache.json
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\rjsmrazor.dswa.cache.json
 C:\Users\tchud\OneDrive\Desktop\fortress-notes\src\FortressApi\obj\Debug\net8.0\rjsmcshtml.dswa.cache.json

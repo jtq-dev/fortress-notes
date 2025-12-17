@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("FortressApi")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+1a0ec34dd1485ba38dcceddc939e24cc4dd182c8")]
 [assembly: System.Reflection.AssemblyProductAttribute("FortressApi")]
 [assembly: System.Reflection.AssemblyTitleAttribute("FortressApi")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
