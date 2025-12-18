@@ -1,9 +1,8 @@
 using FortressApi.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 public sealed class TestAppFactory : WebApplicationFactory<Program>
 {
@@ -13,22 +12,17 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
     {
         builder.UseEnvironment("Development");
 
-        builder.ConfigureAppConfiguration((context, cfg) =>
-        {
-            _dbPath = Path.Combine(Path.GetTempPath(), $"fortress_test_{Guid.NewGuid():N}.db");
+        _dbPath = Path.Combine(Path.GetTempPath(), $"fortress_test_{Guid.NewGuid():N}.db");
 
-            cfg.AddInMemoryCollection(new Dictionary<string, string?>
-            {
-                ["Jwt:Issuer"] = "FortressNotes",
-                ["Jwt:Audience"] = "FortressNotesUsers",
-                ["Jwt:SigningKey"] = "TEST_SIGNING_KEY_32+_CHARS________________",
-                ["ConnectionStrings:Default"] = $"Data Source={_dbPath}"
-            });
-        });
+        // ✅ Highest precedence + consistent in auth middleware
+        Environment.SetEnvironmentVariable("Jwt__Issuer", "FortressNotes");
+        Environment.SetEnvironmentVariable("Jwt__Audience", "FortressNotesUsers");
+        Environment.SetEnvironmentVariable("Jwt__SigningKey", "TEST_SIGNING_KEY_32+_CHARS________________");
+        Environment.SetEnvironmentVariable("ConnectionStrings__Default", $"Data Source={_dbPath}");
 
         builder.ConfigureServices(services =>
         {
-            // Make sure EF uses the test DB (same connection string we injected)
+            // Force EF to use test DB
             var descriptor = services.SingleOrDefault(
                 d => d.ServiceType == typeof(DbContextOptions<AppDbContext>));
             if (descriptor != null) services.Remove(descriptor);
@@ -36,7 +30,6 @@ public sealed class TestAppFactory : WebApplicationFactory<Program>
             services.AddDbContext<AppDbContext>(opts =>
                 opts.UseSqlite($"Data Source={_dbPath}"));
 
-            // Build provider and ensure DB is created
             var sp = services.BuildServiceProvider();
             using var scope = sp.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
