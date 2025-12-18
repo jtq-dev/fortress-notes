@@ -82,42 +82,35 @@ builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-// Create DB on startup (simple demo-friendly)
-using (var scope = app.Services.CreateScope())
-{
-    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    db.Database.EnsureCreated();
-}
+// Create DB, etc...
 
+// ✅ DON’T force HTTPS redirect on Render (optional)
 if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
 
+// ✅ Enable Swagger in ALL environments (so recruiters can test)
+app.UseSwagger();
+app.UseSwaggerUI(c =>
+{
+    c.RoutePrefix = "swagger";
+    c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fortress Notes API v1");
+});
+
 app.UseRateLimiter();
 app.UseMiddleware<SecurityHeadersMiddleware>();
-
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-else
-{
-    // still allow Swagger in prod if you want; recruiters love it:
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
-
-app.MapGet("/health/live", () => Results.Ok(new { ok = true }));
-app.MapGet("/health/ready", () => Results.Ok(new { ok = true }));
 
 app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
 
+app.MapGet("/health/live", () => Results.Ok(new { ok = true }));
+app.MapGet("/health/ready", () => Results.Ok(new { ok = true }));
+
 app.Run();
+
 
 // For integration tests
 public partial class Program { }
