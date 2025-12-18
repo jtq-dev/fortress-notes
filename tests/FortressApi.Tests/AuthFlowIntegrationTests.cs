@@ -1,18 +1,15 @@
-using System;
 using System.Net.Http.Headers;
 using System.Net.Http.Json;
-using System.Threading.Tasks;
 using FortressApi.Contracts;
-using Microsoft.AspNetCore.Mvc.Testing;
 using Xunit;
 
-public sealed class AuthFlowIntegrationTests : IClassFixture<WebApplicationFactory<Program>>
+public sealed class AuthFlowIntegrationTests : IClassFixture<TestAppFactory>
 {
-    private readonly WebApplicationFactory<Program> _factory;
+    private readonly TestAppFactory _factory;
 
-    public AuthFlowIntegrationTests(WebApplicationFactory<Program> factory)
+    public AuthFlowIntegrationTests(TestAppFactory factory)
     {
-        _factory = factory.WithWebHostBuilder(_ => { });
+        _factory = factory;
     }
 
     [Fact]
@@ -24,11 +21,20 @@ public sealed class AuthFlowIntegrationTests : IClassFixture<WebApplicationFacto
         var password = "VeryStrongPassword!!";
 
         var reg = await client.PostAsJsonAsync("/api/auth/register", new RegisterReq(email, password));
-        reg.EnsureSuccessStatusCode();
+        if (!reg.IsSuccessStatusCode)
+        {
+            var body = await reg.Content.ReadAsStringAsync();
+            throw new Exception($"Register failed: {(int)reg.StatusCode} {reg.StatusCode}\n{body}");
+        }
+        var regRes = await reg.Content.ReadFromJsonAsync<AuthRes>();
+        Assert.NotNull(regRes);
 
         var login = await client.PostAsJsonAsync("/api/auth/login", new LoginReq(email, password));
-        login.EnsureSuccessStatusCode();
-
+        if (!login.IsSuccessStatusCode)
+        {
+            var body = await login.Content.ReadAsStringAsync();
+            throw new Exception($"Login failed: {(int)login.StatusCode} {login.StatusCode}\n{body}");
+        }
         var loginRes = await login.Content.ReadFromJsonAsync<AuthRes>();
         Assert.NotNull(loginRes);
 
@@ -36,8 +42,11 @@ public sealed class AuthFlowIntegrationTests : IClassFixture<WebApplicationFacto
             new AuthenticationHeaderValue("Bearer", loginRes!.Token);
 
         var note = await client.PostAsJsonAsync("/api/notes", new NoteCreateReq("Hello", "World"));
-        note.EnsureSuccessStatusCode();
-
+        if (!note.IsSuccessStatusCode)
+        {
+            var body = await note.Content.ReadAsStringAsync();
+            throw new Exception($"Create note failed: {(int)note.StatusCode} {note.StatusCode}\n{body}");
+        }
         var noteRes = await note.Content.ReadFromJsonAsync<NoteRes>();
         Assert.NotNull(noteRes);
         Assert.Equal("Hello", noteRes!.Title);
