@@ -91,12 +91,17 @@ if (app.Environment.IsDevelopment())
 }
 
 // ✅ Enable Swagger in ALL environments (so recruiters can test)
-app.UseSwagger();
+app.UseSwagger(c =>
+{
+    c.RouteTemplate = "swagger/{documentName}/swagger.json";
+});
+
 app.UseSwaggerUI(c =>
 {
-    c.RoutePrefix = "swagger";
     c.SwaggerEndpoint("/swagger/v1/swagger.json", "Fortress Notes API v1");
+    c.RoutePrefix = "swagger"; // ✅ /swagger
 });
+
 
 app.UseRateLimiter();
 app.UseMiddleware<SecurityHeadersMiddleware>();
@@ -105,6 +110,42 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers().RequireRateLimiting("fixed");
+app.MapGet("/", () => Results.Content("""
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Fortress Notes API</title>
+  <style>
+    body{font-family:system-ui;margin:0;background:#0b0b10;color:#fff}
+    .wrap{max-width:920px;margin:0 auto;padding:48px}
+    .card{background:#141422;border:1px solid #2a2a3b;border-radius:16px;padding:20px}
+    a.btn{display:inline-block;margin:10px 10px 0 0;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:700}
+    .p{color:#c9c9d6;line-height:1.6}
+    .btn1{background:#7c3aed;color:#fff}
+    .btn2{background:#fff;color:#111}
+    code{background:#1f1f2e;padding:2px 6px;border-radius:8px}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Fortress Notes API</h1>
+    <p class="p">Secure CRUD API with JWT, secure headers, rate limiting, tests, Docker, CI.</p>
+
+    <div class="card">
+      <h3>Try it</h3>
+      <p class="p">Use the dev console to register/login and test endpoints.</p>
+      <a class="btn btn1" href="/swagger">Open Swagger (Dev Console)</a>
+      <a class="btn btn2" href="/health/live">Health Check</a>
+      <p class="p" style="margin-top:14px">
+        Tip: In Swagger click <b>Authorize</b> and paste <code>Bearer &lt;token&gt;</code>.
+      </p>
+    </div>
+  </div>
+</body>
+</html>
+""", "text/html"));
 
 app.MapGet("/health/live", () => Results.Ok(new { ok = true }));
 app.MapGet("/health/ready", () => Results.Ok(new { ok = true }));
